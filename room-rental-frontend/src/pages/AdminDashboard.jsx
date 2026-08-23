@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [rooms, setRooms] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,18 +15,22 @@ function AdminDashboard() {
       api.get("/admin/stats"),
       api.get("/admin/users"),
       api.get("/admin/rooms"),
+      api.get("/admin/bookings"),
+      api.get("/admin/revenue-chart"),
     ])
-      .then(([statsRes, usersRes, roomsRes]) => {
+      .then(([statsRes, usersRes, roomsRes, bookingsRes, chartRes]) => {
         setStats(statsRes.data);
         setUsers(usersRes.data.users);
         setRooms(roomsRes.data.rooms);
+        setBookings(bookingsRes.data.bookings);
+        setChartData(chartRes.data.data);
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
 
   const handleDeleteUser = async (id, name) => {
-    if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+    if (!confirm(`Delete user "${name}"?`)) return;
     try {
       await api.delete(`/admin/users/${id}`);
       setUsers(users.filter((u) => u._id !== id));
@@ -33,7 +40,7 @@ function AdminDashboard() {
   };
 
   const handleDeleteRoom = async (id, title) => {
-    if (!confirm(`Delete room "${title}"? This cannot be undone.`)) return;
+    if (!confirm(`Delete room "${title}"?`)) return;
     try {
       await api.delete(`/admin/rooms/${id}`);
       setRooms(rooms.filter((r) => r._id !== id));
@@ -59,8 +66,62 @@ function AdminDashboard() {
         </div>
       )}
 
-      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Users</h2>
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">Revenue Over Time</h2>
+      <div className="border rounded-2xl p-6 bg-white mb-12" style={{ height: 300 }}>
+        {chartData.length === 0 ? (
+          <p className="text-gray-400 text-sm">No revenue data yet.</p>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="revenue" fill="#0f766e" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
 
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Bookings</h2>
+      <div className="overflow-x-auto border rounded-2xl mb-12">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-left">
+            <tr>
+              <th className="px-4 py-3">Room</th>
+              <th className="px-4 py-3">Tenant</th>
+              <th className="px-4 py-3">Dates</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Payment</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bookings.map((b) => (
+              <tr key={b._id} className="border-t">
+                <td className="px-4 py-3 font-medium text-gray-900">{b.room?.title || "Deleted room"}</td>
+                <td className="px-4 py-3 text-gray-600">{b.user?.name}</td>
+                <td className="px-4 py-3 text-gray-600">
+                  {new Date(b.moveInDate).toLocaleDateString()} → {new Date(b.moveOutDate).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-3">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    b.status === "confirmed" ? "bg-green-100 text-green-700" :
+                    b.status === "cancelled" ? "bg-red-100 text-red-700" :
+                    "bg-yellow-100 text-yellow-700"
+                  }`}>
+                    {b.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-gray-600">
+                  {b.payment ? `Rs. ${b.payment.amount} (${b.payment.method})` : "-"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Users</h2>
       <div className="overflow-x-auto border rounded-2xl mb-12">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left">
@@ -93,10 +154,7 @@ function AdminDashboard() {
                 </td>
                 <td className="px-4 py-3">
                   {u.role !== "admin" && (
-                    <button
-                      onClick={() => handleDeleteUser(u._id, u.name)}
-                      className="text-red-600 hover:underline text-xs"
-                    >
+                    <button onClick={() => handleDeleteUser(u._id, u.name)} className="text-red-600 hover:underline text-xs">
                       Delete
                     </button>
                   )}
@@ -108,7 +166,6 @@ function AdminDashboard() {
       </div>
 
       <h2 className="text-2xl font-bold mb-4 text-gray-900">All Rooms</h2>
-
       <div className="overflow-x-auto border rounded-2xl">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left">
@@ -136,10 +193,7 @@ function AdminDashboard() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <button
-                    onClick={() => handleDeleteRoom(r._id, r.title)}
-                    className="text-red-600 hover:underline text-xs"
-                  >
+                  <button onClick={() => handleDeleteRoom(r._id, r.title)} className="text-red-600 hover:underline text-xs">
                     Delete
                   </button>
                 </td>
