@@ -12,6 +12,8 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [bookingPage, setBookingPage] = useState(1);
   const [roomPage, setRoomPage] = useState(1);
+  const [userPage, setUserPage] = useState(1);
+  const [userSearch, setUserSearch] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -53,6 +55,10 @@ function AdminDashboard() {
   };
 
   if (loading) return <div className="text-center py-20">Loading...</div>;
+
+  const filteredUsers = users.filter(u =>
+    u.name.toLowerCase().includes(userSearch.toLowerCase())
+  );
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-4">
@@ -128,28 +134,29 @@ function AdminDashboard() {
 
       {bookings.length > 10 && (
         <div className="flex justify-center gap-2 mb-12">
-          <button
-            onClick={() => setBookingPage(p => Math.max(1, p - 1))}
-            disabled={bookingPage === 1}
-            className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40"
-          >
+          <button onClick={() => setBookingPage(p => Math.max(1, p - 1))} disabled={bookingPage === 1} className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40">
             Previous
           </button>
           <span className="text-sm text-gray-500 px-2 py-1.5">
             Page {bookingPage} of {Math.ceil(bookings.length / 10)}
           </span>
-          <button
-            onClick={() => setBookingPage(p => Math.min(Math.ceil(bookings.length / 10), p + 1))}
-            disabled={bookingPage === Math.ceil(bookings.length / 10)}
-            className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40"
-          >
+          <button onClick={() => setBookingPage(p => Math.min(Math.ceil(bookings.length / 10), p + 1))} disabled={bookingPage === Math.ceil(bookings.length / 10)} className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40">
             Next
           </button>
         </div>
       )}
 
-      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Users</h2>
-      <div className="overflow-x-auto border rounded-2xl mb-12">
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Users ({filteredUsers.length})</h2>
+
+      <input
+        type="text"
+        placeholder="Search by name..."
+        value={userSearch}
+        onChange={(e) => { setUserSearch(e.target.value); setUserPage(1); }}
+        className="border rounded-xl px-4 py-2 mb-4 w-full max-w-sm text-sm"
+      />
+
+      <div className="overflow-x-auto border rounded-2xl mb-4">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left">
             <tr>
@@ -162,7 +169,7 @@ function AdminDashboard() {
             </tr>
           </thead>
           <tbody>
-            {users.map((u) => (
+            {filteredUsers.slice((userPage - 1) * 10, userPage * 10).map((u) => (
               <tr key={u._id} className="border-t">
                 <td className="px-4 py-3 font-medium text-gray-900">{u.name}</td>
                 <td className="px-4 py-3 text-gray-600">{u.email}</td>
@@ -191,6 +198,20 @@ function AdminDashboard() {
           </tbody>
         </table>
       </div>
+
+      {filteredUsers.length > 10 && (
+        <div className="flex justify-center gap-2 mb-12">
+          <button onClick={() => setUserPage(p => Math.max(1, p - 1))} disabled={userPage === 1} className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40">
+            Previous
+          </button>
+          <span className="text-sm text-gray-500 px-2 py-1.5">
+            Page {userPage} of {Math.ceil(filteredUsers.length / 10)}
+          </span>
+          <button onClick={() => setUserPage(p => Math.min(Math.ceil(filteredUsers.length / 10), p + 1))} disabled={userPage === Math.ceil(filteredUsers.length / 10)} className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40">
+            Next
+          </button>
+        </div>
+      )}
 
       <h2 className="text-2xl font-bold mb-4 text-gray-900">All Rooms ({rooms.length})</h2>
       <div className="overflow-x-auto border rounded-2xl mb-4">
@@ -235,21 +256,13 @@ function AdminDashboard() {
 
       {rooms.length > 10 && (
         <div className="flex justify-center gap-2">
-          <button
-            onClick={() => setRoomPage(p => Math.max(1, p - 1))}
-            disabled={roomPage === 1}
-            className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40"
-          >
+          <button onClick={() => setRoomPage(p => Math.max(1, p - 1))} disabled={roomPage === 1} className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40">
             Previous
           </button>
           <span className="text-sm text-gray-500 px-2 py-1.5">
             Page {roomPage} of {Math.ceil(rooms.length / 10)}
           </span>
-          <button
-            onClick={() => setRoomPage(p => Math.min(Math.ceil(rooms.length / 10), p + 1))}
-            disabled={roomPage === Math.ceil(rooms.length / 10)}
-            className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40"
-          >
+          <button onClick={() => setRoomPage(p => Math.min(Math.ceil(rooms.length / 10), p + 1))} disabled={roomPage === Math.ceil(rooms.length / 10)} className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40">
             Next
           </button>
         </div>
