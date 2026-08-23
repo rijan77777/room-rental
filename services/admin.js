@@ -46,7 +46,6 @@ const deleteRoomAdmin = async (roomId) => {
   await room.deleteOne();
   return { message: 'Room deleted by admin' };
 };
-const Booking = require('../models/Booking');
 
 const getAllBookingsAdmin = async () => {
   const bookings = await Booking.find()
