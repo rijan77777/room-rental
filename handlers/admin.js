@@ -62,4 +62,4 @@ const revenueChart = async (req, res) => {
   }
 };
 
-module.exports = { listUsers, removeUser, stats, listRooms, removeRoom, listBooking, revenueChart };
+module.exports = { listUsers, removeUser, stats, listRooms, removeRoom, listBookings, revenueChart };
