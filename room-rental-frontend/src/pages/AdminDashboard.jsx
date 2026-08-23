@@ -9,6 +9,7 @@ function AdminDashboard() {
   const [bookings, setBookings] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+const [bookingPage, setBookingPage] = useState(1);
 
   useEffect(() => {
     Promise.all([
@@ -82,9 +83,8 @@ function AdminDashboard() {
           </ResponsiveContainer>
         )}
       </div>
-
-      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Bookings</h2>
-      <div className="overflow-x-auto border rounded-2xl mb-12">
+            <h2 className="text-2xl font-bold mb-4 text-gray-900">All Bookings ({bookings.length})</h2>
+      <div className="overflow-x-auto border rounded-2xl mb-4">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left">
             <tr>
@@ -96,9 +96,11 @@ function AdminDashboard() {
             </tr>
           </thead>
           <tbody>
-            {bookings.map((b) => (
+            {bookings.slice((bookingPage - 1) * 10, bookingPage * 10).map((b) => (
               <tr key={b._id} className="border-t">
-                <td className="px-4 py-3 font-medium text-gray-900">{b.room?.title || "Deleted room"}</td>
+                <td className="px-4 py-3 font-medium text-gray-900">
+                  {b.room?.title || <span className="text-gray-400 italic">Deleted room</span>}
+                </td>
                 <td className="px-4 py-3 text-gray-600">{b.user?.name}</td>
                 <td className="px-4 py-3 text-gray-600">
                   {new Date(b.moveInDate).toLocaleDateString()} → {new Date(b.moveOutDate).toLocaleDateString()}
@@ -121,7 +123,28 @@ function AdminDashboard() {
         </table>
       </div>
 
-      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Users</h2>
+      {bookings.length > 10 && (
+        <div className="flex justify-center gap-2 mb-12">
+          <button
+            onClick={() => setBookingPage(p => Math.max(1, p - 1))}
+            disabled={bookingPage === 1}
+            className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-500 px-2 py-1.5">
+            Page {bookingPage} of {Math.ceil(bookings.length / 10)}
+          </span>
+          <button
+            onClick={() => setBookingPage(p => Math.min(Math.ceil(bookings.length / 10), p + 1))}
+            disabled={bookingPage === Math.ceil(bookings.length / 10)}
+            className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      )}
+<h2 className="text-2xl font-bold mb-4 text-gray-900">All Users</h2>
       <div className="overflow-x-auto border rounded-2xl mb-12">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left">
