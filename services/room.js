@@ -39,14 +39,13 @@ const getRoomById = async (roomId) => {
   }
   return room;
 };
-
-const updateRoom = async (roomId, ownerId, updates) => {
+const updateRoom = async (roomId, userId, updates, userRole) => {
   const room = await Room.findById(roomId);
   if (!room) {
     throw new Error('Room not found');
   }
 
-  if (room.owner.toString() !== ownerId) {
+  if (room.owner.toString() !== userId && userRole !== 'admin') {
     throw new Error('You can only update your own room');
   }
 

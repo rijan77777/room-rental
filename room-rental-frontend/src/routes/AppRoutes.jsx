@@ -59,7 +59,7 @@ function AppRoutes() {
 <Route
     path="/edit-room/:id"
     element={
-      <ProtectedRoute requiredRole="owner">
+      <ProtectedRoute>
         <EditRoom />
       </ProtectedRoute>
     }

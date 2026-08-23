@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -9,7 +10,8 @@ function AdminDashboard() {
   const [bookings, setBookings] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
-const [bookingPage, setBookingPage] = useState(1);
+  const [bookingPage, setBookingPage] = useState(1);
+  const [roomPage, setRoomPage] = useState(1);
 
   useEffect(() => {
     Promise.all([
@@ -83,7 +85,8 @@ const [bookingPage, setBookingPage] = useState(1);
           </ResponsiveContainer>
         )}
       </div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">All Bookings ({bookings.length})</h2>
+
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Bookings ({bookings.length})</h2>
       <div className="overflow-x-auto border rounded-2xl mb-4">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left">
@@ -144,7 +147,8 @@ const [bookingPage, setBookingPage] = useState(1);
           </button>
         </div>
       )}
-<h2 className="text-2xl font-bold mb-4 text-gray-900">All Users</h2>
+
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Users</h2>
       <div className="overflow-x-auto border rounded-2xl mb-12">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left">
@@ -188,8 +192,8 @@ const [bookingPage, setBookingPage] = useState(1);
         </table>
       </div>
 
-      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Rooms</h2>
-      <div className="overflow-x-auto border rounded-2xl">
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">All Rooms ({rooms.length})</h2>
+      <div className="overflow-x-auto border rounded-2xl mb-4">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left">
             <tr>
@@ -202,7 +206,7 @@ const [bookingPage, setBookingPage] = useState(1);
             </tr>
           </thead>
           <tbody>
-            {rooms.map((r) => (
+            {rooms.slice((roomPage - 1) * 10, roomPage * 10).map((r) => (
               <tr key={r._id} className="border-t">
                 <td className="px-4 py-3 font-medium text-gray-900">{r.title}</td>
                 <td className="px-4 py-3 text-gray-600">{r.owner?.name || "Unknown"}</td>
@@ -216,6 +220,9 @@ const [bookingPage, setBookingPage] = useState(1);
                   </span>
                 </td>
                 <td className="px-4 py-3">
+                  <Link to={`/edit-room/${r._id}`} className="text-blue-600 hover:underline text-xs mr-3">
+                    Edit
+                  </Link>
                   <button onClick={() => handleDeleteRoom(r._id, r.title)} className="text-red-600 hover:underline text-xs">
                     Delete
                   </button>
@@ -225,6 +232,28 @@ const [bookingPage, setBookingPage] = useState(1);
           </tbody>
         </table>
       </div>
+
+      {rooms.length > 10 && (
+        <div className="flex justify-center gap-2">
+          <button
+            onClick={() => setRoomPage(p => Math.max(1, p - 1))}
+            disabled={roomPage === 1}
+            className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-500 px-2 py-1.5">
+            Page {roomPage} of {Math.ceil(rooms.length / 10)}
+          </span>
+          <button
+            onClick={() => setRoomPage(p => Math.min(Math.ceil(rooms.length / 10), p + 1))}
+            disabled={roomPage === Math.ceil(rooms.length / 10)}
+            className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

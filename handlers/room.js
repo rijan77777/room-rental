@@ -34,13 +34,12 @@ const getOne = async (req, res) => {
 };
 const update = async (req, res) => {
   try {
-    const room = await updateRoom(req.params.id, req.userId, req.body);
+    const room = await updateRoom(req.params.id, req.userId, req.body, req.userRole);
     res.status(200).json({ message: 'Room updated successfully', room });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
-
 const remove = async (req, res) => {
   try {
     const result = await deleteRoom(req.params.id, req.userId);
