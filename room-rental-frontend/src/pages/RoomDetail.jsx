@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import RoomMap from "../components/RoomMap";
@@ -29,6 +29,8 @@ function RoomDetail() {
   const [inquiryError, setInquiryError] = useState("");
   const [sendingInquiry, setSendingInquiry] = useState(false);
 
+  const [similarRooms, setSimilarRooms] = useState([]);
+
   useEffect(() => {
     api.get(`/rooms/${id}`)
       .then((res) => setRoom(res.data.room))
@@ -37,6 +39,10 @@ function RoomDetail() {
 
     api.get(`/reviews/room/${id}`)
       .then((res) => setReviews(res.data.reviews))
+      .catch((err) => console.error(err));
+
+    api.get(`/rooms/${id}/similar`)
+      .then((res) => setSimilarRooms(res.data.rooms))
       .catch((err) => console.error(err));
   }, [id]);
 
@@ -220,6 +226,28 @@ function RoomDetail() {
             </div>
           )}
         </div>
+
+        {similarRooms.length > 0 && (
+          <div className="mt-10 border-t pt-6">
+            <h2 className="text-xl font-bold mb-4 text-gray-900">Similar Rooms</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {similarRooms.map((r) => (
+                <Link key={r._id} to={`/rooms/${r._id}`} className="border rounded-xl overflow-hidden hover:shadow-md transition bg-white">
+                  {r.images.length > 0 ? (
+                    <img src={r.images[0].replace('/upload/', '/upload/w_300,q_auto/')} alt={r.title} className="w-full h-28 object-cover" />
+                  ) : (
+                    <div className="w-full h-28 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No image</div>
+                  )}
+                  <div className="p-3">
+                    <p className="font-semibold text-sm text-gray-900 truncate">{r.title}</p>
+                    <p className="text-xs text-gray-500">{r.location.city}</p>
+                    <p className="text-sm font-bold text-teal-800 mt-1">Rs. {r.pricePerMonth}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="md:col-span-1">
