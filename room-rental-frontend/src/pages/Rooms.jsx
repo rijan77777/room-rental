@@ -7,21 +7,28 @@ function Rooms() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [city, setCity] = useState(searchParams.get("city") || "");
+  const [type, setType] = useState("");
+  const [sort, setSort] = useState("newest");
 
   useEffect(() => {
     fetchRooms();
   }, []);
 
-  const fetchRooms = async (filterCity) => {
+  const fetchRooms = async (filterCity, filterType, filterSort) => {
     setLoading(true);
     try {
       const params = {};
       const cityVal = filterCity !== undefined ? filterCity : searchParams.get("city");
       const maxPrice = searchParams.get("maxPrice");
       const q = searchParams.get("q");
+      const typeVal = filterType !== undefined ? filterType : type;
+      const sortVal = filterSort !== undefined ? filterSort : sort;
+
       if (cityVal) params.city = cityVal;
       if (maxPrice) params.maxPrice = maxPrice;
       if (q) params.q = q;
+      if (typeVal) params.type = typeVal;
+      if (sortVal && sortVal !== "newest") params.sort = sortVal;
 
       const res = await api.get("/rooms", { params });
       setRooms(res.data.rooms);
@@ -34,7 +41,17 @@ function Rooms() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchRooms(city);
+    fetchRooms(city, type, sort);
+  };
+
+  const handleTypeChange = (e) => {
+    setType(e.target.value);
+    fetchRooms(city, e.target.value, sort);
+  };
+
+  const handleSortChange = (e) => {
+    setSort(e.target.value);
+    fetchRooms(city, type, e.target.value);
   };
 
   if (loading) return <div className="text-center py-20">Loading rooms...</div>;
@@ -43,14 +60,28 @@ function Rooms() {
     <div className="max-w-6xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold mb-6 text-gray-900">Available Rooms</h1>
 
-      <form onSubmit={handleSearch} className="flex gap-2 mb-8">
+      <form onSubmit={handleSearch} className="flex flex-wrap gap-2 mb-8">
         <input
           type="text"
           placeholder="Search by city..."
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="border rounded-xl px-4 py-2 flex-1"
+          className="border rounded-xl px-4 py-2 flex-1 min-w-[180px]"
         />
+
+        <select value={type} onChange={handleTypeChange} className="border rounded-xl px-4 py-2 bg-white">
+          <option value="">All types</option>
+          <option value="single">Single</option>
+          <option value="shared">Shared</option>
+          <option value="apartment">Apartment</option>
+        </select>
+
+        <select value={sort} onChange={handleSortChange} className="border rounded-xl px-4 py-2 bg-white">
+          <option value="newest">Newest first</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+        </select>
+
         <button type="submit" className="bg-teal-800 text-white px-6 py-2 rounded-xl">
           Search
         </button>
