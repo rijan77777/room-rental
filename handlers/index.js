@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { register, login, forgotPassword, resetPasswordHandler } = require('./auth');
-const { create, getAll, getOne, update, remove, getMyRooms, uploadImage, deleteImage } = require('./room');
+const { create, getAll, getOne, update, remove, getMyRooms, uploadImage, deleteImage, getSimilar } = require('./room');
 const { create: createBooking, getMyBookings, cancel: cancelBooking, getForOwner: getBookingsForOwner } = require('./booking');
 const { create: createPayment, uploadProof, getByBooking } = require('./payment');
 const { create: createReview, getForRoom } = require('./review');
