@@ -1,4 +1,4 @@
-const { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByOwner, removeRoomImage } = require('../services/room');
+const { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByOwner, removeRoomImage, getSimilarRooms } = require('../services/room');
 const { validateRoom } = require('../validators/room');
 const Room = require('../models/Room');
 const create = async (req, res) => {
@@ -90,4 +90,15 @@ const deleteImage = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
-module.exports = { create, getAll, getOne, update, remove, getMyRooms, uploadImage, deleteImage };
+const getSimilar = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id);
+    if (!room) return res.status(404).json({ message: 'Room not found' });
+
+    const similar = await getSimilarRooms(room._id, room.location.city, room.pricePerMonth);
+    res.status(200).json({ rooms: similar });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+module.exports = { create, getAll, getOne, update, remove, getMyRooms, uploadImage, deleteImage, getSimilar };

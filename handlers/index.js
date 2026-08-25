@@ -51,5 +51,6 @@ router.get('/admin/rooms', protect, adminOnly, listRooms);
 router.delete('/admin/rooms/:id', protect, adminOnly, removeRoom);
 router.get('/admin/bookings', protect, adminOnly, listBookings);
 router.get('/admin/revenue-chart', protect, adminOnly, revenueChart);
+router.get('/rooms/:id/similar', getSimilar);
 
 module.exports = router;

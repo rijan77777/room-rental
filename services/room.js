@@ -27,8 +27,11 @@ const getAllRooms = async (filters = {}) => {
       { 'location.city': searchRegex }
     ];
   }
+  let sortOption = { createdAt: -1 };
+  if (filters.sort === 'price_asc') sortOption = { pricePerMonth: 1 };
+  if (filters.sort === 'price_desc') sortOption = { pricePerMonth: -1 };
 
-  const rooms = await Room.find(query).populate('owner', 'name email phone');
+  const rooms = await Room.find(query).populate('owner', 'name email phone').sort(sortOption);
   return rooms;
 };
 
@@ -82,5 +85,15 @@ const removeRoomImage = async (roomId, ownerId, imageUrl) => {
   await room.save();
   return room;
 };
+const getSimilarRooms = async (roomId, city, pricePerMonth) => {
+  return Room.find({
+    _id: { $ne: roomId },
+    isAvailable: true,
+    $or: [
+      { 'location.city': city },
+      { pricePerMonth: { $gte: pricePerMonth * 0.7, $lte: pricePerMonth * 1.3 } }
+    ]
+  }).limit(3).populate('owner', 'name');
+};
 
-module.exports = { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByOwner, removeRoomImage };
+module.exports = { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByOwner, removeRoomImage, getSimilarRooms };
