@@ -30,8 +30,12 @@ function RoomDetail() {
   const [sendingInquiry, setSendingInquiry] = useState(false);
 
   const [similarRooms, setSimilarRooms] = useState([]);
-
   useEffect(() => {
+    setLoading(true);
+    setRoom(null);
+    setReviews([]);
+    setSimilarRooms([]);
+
     api.get(`/rooms/${id}`)
       .then((res) => setRoom(res.data.room))
       .catch((err) => console.error(err))
@@ -44,7 +48,7 @@ function RoomDetail() {
     api.get(`/rooms/${id}/similar`)
       .then((res) => setSimilarRooms(res.data.rooms))
       .catch((err) => console.error(err));
-  }, [id]);
+}, [id]);
 
   const openModal = () => {
     if (!user) {
