@@ -1,4 +1,4 @@
-const { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByOwner, removeRoomImage, getSimilarRooms } = require('../services/room');
+const { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByOwner, removeRoomImage, getSimilarRooms, toggleFavorite, getFavoriteRooms } = require('../services/room');
 const { validateRoom } = require('../validators/room');
 const Room = require('../models/Room');
 const create = async (req, res) => {
@@ -101,4 +101,21 @@ const getSimilar = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-module.exports = { create, getAll, getOne, update, remove, getMyRooms, uploadImage, deleteImage, getSimilar };
+const toggleFav = async (req, res) => {
+  try {
+    const result = await toggleFavorite(req.userId, req.params.id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const getFavorites = async (req, res) => {
+  try {
+    const rooms = await getFavoriteRooms(req.userId);
+    res.status(200).json({ rooms });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+module.exports = { create, getAll, getOne, update, remove, getMyRooms, uploadImage, deleteImage, getSimilar, toggleFav, getFavorites };

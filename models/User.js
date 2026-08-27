@@ -31,7 +31,11 @@ const userSchema = new mongoose.Schema({
   },
   resetTokenExpiry: {
     type: Date
-  }
+  },
+  favorites: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Room'
+  }]
 }, {
   timestamps: true
 });

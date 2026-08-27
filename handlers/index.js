@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { register, login, forgotPassword, resetPasswordHandler } = require('./auth');
-const { create, getAll, getOne, update, remove, getMyRooms, uploadImage, deleteImage, getSimilar } = require('./room');
+const { create, getAll, getOne, update, remove, getMyRooms, uploadImage, deleteImage, getSimilar, toggleFav, getFavorites} = require('./room');
 const { create: createBooking, getMyBookings, cancel: cancelBooking, getForOwner: getBookingsForOwner } = require('./booking');
 const { create: createPayment, uploadProof, getByBooking } = require('./payment');
 const { create: createReview, getForRoom } = require('./review');
@@ -10,6 +10,7 @@ const { create: createInquiry, getForOwner: getInquiriesForOwner } = require('./
 const { getMine, markRead, markAllRead } = require('./notification');
 const { protect, adminOnly } = require('../middlewares/auth');
 const upload = require('../config/multer');
+const { create: createReport, getAll: getAllReports, updateStatus: updateReportStatus } = require('./report');
 
 router.post('/auth/register', register);
 router.post('/auth/login', login);
@@ -52,5 +53,10 @@ router.delete('/admin/rooms/:id', protect, adminOnly, removeRoom);
 router.get('/admin/bookings', protect, adminOnly, listBookings);
 router.get('/admin/revenue-chart', protect, adminOnly, revenueChart);
 router.get('/rooms/:id/similar', getSimilar);
+router.put('/rooms/:id/favorite', protect, toggleFav);
+router.get('/favorites', protect, getFavorites);
+router.post('/reports', protect, createReport);
+router.get('/admin/reports', protect, adminOnly, getAllReports);
+router.put('/admin/reports/:id', protect, adminOnly, updateReportStatus);
 
 module.exports = router;

@@ -95,5 +95,34 @@ const getSimilarRooms = async (roomId, city, pricePerMonth) => {
     ]
   }).limit(3).populate('owner', 'name');
 };
+const User = require('../models/User');
 
-module.exports = { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByOwner, removeRoomImage, getSimilarRooms };
+const toggleFavorite = async (userId, roomId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+
+  const index = user.favorites.findIndex(f => f.toString() === roomId);
+  let isFavorited;
+
+  if (index > -1) {
+    user.favorites.splice(index, 1);
+    isFavorited = false;
+  } else {
+    user.favorites.push(roomId);
+    isFavorited = true;
+  }
+
+  await user.save();
+  return { isFavorited };
+};
+
+const getFavoriteRooms = async (userId) => {
+  const user = await User.findById(userId).populate({
+    path: 'favorites',
+    populate: { path: 'owner', select: 'name email phone' }
+  });
+  if (!user) throw new Error('User not found');
+  return user.favorites;
+};
+
+module.exports = { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByOwner, removeRoomImage, getSimilarRooms, toggleFavorite, getFavoriteRooms };
