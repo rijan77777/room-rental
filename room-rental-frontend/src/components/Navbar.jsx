@@ -1,10 +1,21 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
+import { useState, useEffect } from "react";
+import api from "../services/api";
 
 function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [favCount, setFavCount] = useState(0);
+
+  useEffect(() => {
+    if (user && user.role === "tenant") {
+      api.get("/favorites/count")
+        .then((res) => setFavCount(res.data.count))
+        .catch((err) => console.error(err));
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -27,12 +38,12 @@ function Navbar() {
             Rooms
           </Link>
           <Link to="/about" className="hover:text-yellow-300">
-  About
-</Link>
+            About
+          </Link>
 
-<Link to="/contact" className="hover:text-yellow-300">
-  Contact
-</Link>
+          <Link to="/contact" className="hover:text-yellow-300">
+            Contact
+          </Link>
 
           {user ? (
             <>
@@ -52,10 +63,15 @@ function Navbar() {
                 </Link>
               )}
               {user.role === "tenant" && (
-  <Link to="/favorites" className="hover:text-yellow-300">
-    Favorites
-  </Link>
-)}
+                <Link to="/favorites" className="hover:text-yellow-300 relative">
+                  Favorites
+                  {favCount > 0 && (
+                    <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                      {favCount}
+                    </span>
+                  )}
+                </Link>
+              )}
               {user.role === "owner" && (
                 <Link to="/owner-bookings" className="hover:text-yellow-300">
                   Bookings

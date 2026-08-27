@@ -124,5 +124,10 @@ const getFavoriteRooms = async (userId) => {
   if (!user) throw new Error('User not found');
   return user.favorites;
 };
+const getFavoritesCount = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+  return user.favorites.length;
+};
 
-module.exports = { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByOwner, removeRoomImage, getSimilarRooms, toggleFavorite, getFavoriteRooms };
+module.exports = { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByOwner, removeRoomImage, getSimilarRooms, toggleFavorite, getFavoriteRooms, getFavoritesCount };
