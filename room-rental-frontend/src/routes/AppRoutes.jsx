@@ -20,6 +20,8 @@ import EditRoom from "../pages/EditRoom";
 import OwnerInquiries from "../pages/OwnerInquiries";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
+import Favorites from "../pages/Favorites";
+
 
 function AppRoutes() {
     return (
@@ -109,6 +111,14 @@ function AppRoutes() {
     element={
       <ProtectedRoute requiredRole="owner">
         <OwnerBookings />
+      </ProtectedRoute>
+    }
+/>
+<Route
+    path="/favorites"
+    element={
+      <ProtectedRoute>
+        <Favorites />
       </ProtectedRoute>
     }
 />

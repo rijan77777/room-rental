@@ -30,6 +30,8 @@ function RoomDetail() {
   const [sendingInquiry, setSendingInquiry] = useState(false);
 
   const [similarRooms, setSimilarRooms] = useState([]);
+  const [isFavorited, setIsFavorited] = useState(false);
+
   useEffect(() => {
     setLoading(true);
     setRoom(null);
@@ -48,7 +50,7 @@ function RoomDetail() {
     api.get(`/rooms/${id}/similar`)
       .then((res) => setSimilarRooms(res.data.rooms))
       .catch((err) => console.error(err));
-}, [id]);
+  }, [id]);
 
   const openModal = () => {
     if (!user) {
@@ -115,6 +117,34 @@ function RoomDetail() {
     }
   };
 
+  const handleToggleFavorite = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    try {
+      const res = await api.put(`/rooms/${id}/favorite`);
+      setIsFavorited(res.data.isFavorited);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update favorite");
+    }
+  };
+
+  const handleReport = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    const reason = prompt("Why are you reporting this listing?");
+    if (!reason) return;
+    try {
+      await api.post("/reports", { roomId: id, reason });
+      alert("Report submitted. Thank you for helping keep the platform safe.");
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to submit report");
+    }
+  };
+
   if (loading) return <div className="text-center py-20">Loading...</div>;
   if (!room) return <div className="text-center py-20">Room not found</div>;
 
@@ -171,6 +201,13 @@ function RoomDetail() {
             <p className="text-sm text-gray-500">{room.owner.phone}</p>
           </div>
         </div>
+
+        <button
+          onClick={handleReport}
+          className="mt-3 text-xs text-red-500 hover:underline"
+        >
+          🚩 Report this listing
+        </button>
 
         <div className="mt-10 border-t pt-6">
           <h2 className="text-xl font-bold mb-4 text-gray-900">Reviews</h2>
@@ -277,6 +314,13 @@ function RoomDetail() {
             className="w-full bg-orange-400 hover:bg-orange-500 text-white font-semibold py-3 rounded-xl mt-4 disabled:opacity-50"
           >
             📅 {room.isAvailable ? "Request this place" : "Not available"}
+          </button>
+
+          <button
+            onClick={handleToggleFavorite}
+            className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2.5 rounded-xl mt-2 text-sm"
+          >
+            {isFavorited ? "❤️ Saved to Favorites" : "🤍 Save to Favorites"}
           </button>
 
           <div className="mt-6 border-t pt-4">

@@ -8,6 +8,7 @@ function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [reports, setReports] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [bookingPage, setBookingPage] = useState(1);
@@ -22,13 +23,15 @@ function AdminDashboard() {
       api.get("/admin/rooms"),
       api.get("/admin/bookings"),
       api.get("/admin/revenue-chart"),
+      api.get("/admin/reports"),
     ])
-      .then(([statsRes, usersRes, roomsRes, bookingsRes, chartRes]) => {
+      .then(([statsRes, usersRes, roomsRes, bookingsRes, chartRes, reportsRes]) => {
         setStats(statsRes.data);
         setUsers(usersRes.data.users);
         setRooms(roomsRes.data.rooms);
         setBookings(bookingsRes.data.bookings);
         setChartData(chartRes.data.data);
+        setReports(reportsRes.data.reports);
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
@@ -51,6 +54,15 @@ function AdminDashboard() {
       setRooms(rooms.filter((r) => r._id !== id));
     } catch (err) {
       alert(err.response?.data?.message || "Failed to delete room");
+    }
+  };
+
+  const handleReportStatus = async (id, status) => {
+    try {
+      await api.put(`/admin/reports/${id}`, { status });
+      setReports(reports.map(r => r._id === id ? { ...r, status } : r));
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update report");
     }
   };
 
@@ -90,6 +102,51 @@ function AdminDashboard() {
             </BarChart>
           </ResponsiveContainer>
         )}
+      </div>
+
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">Reported Listings ({reports.length})</h2>
+      <div className="overflow-x-auto border rounded-2xl mb-12">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-left">
+            <tr>
+              <th className="px-4 py-3">Room</th>
+              <th className="px-4 py-3">Reported By</th>
+              <th className="px-4 py-3">Reason</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {reports.map((r) => (
+              <tr key={r._id} className="border-t">
+                <td className="px-4 py-3 font-medium text-gray-900">{r.room?.title || "Deleted room"}</td>
+                <td className="px-4 py-3 text-gray-600">{r.reportedBy?.name}</td>
+                <td className="px-4 py-3 text-gray-600">{r.reason}</td>
+                <td className="px-4 py-3">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    r.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                    r.status === "reviewed" ? "bg-green-100 text-green-700" :
+                    "bg-gray-100 text-gray-700"
+                  }`}>
+                    {r.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  {r.status === "pending" && (
+                    <>
+                      <button onClick={() => handleReportStatus(r._id, "reviewed")} className="text-green-600 hover:underline text-xs mr-2">
+                        Mark Reviewed
+                      </button>
+                      <button onClick={() => handleReportStatus(r._id, "dismissed")} className="text-gray-500 hover:underline text-xs">
+                        Dismiss
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <h2 className="text-2xl font-bold mb-4 text-gray-900">All Bookings ({bookings.length})</h2>

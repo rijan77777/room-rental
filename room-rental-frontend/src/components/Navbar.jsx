@@ -51,6 +51,11 @@ function Navbar() {
                   My Bookings
                 </Link>
               )}
+              {user.role === "tenant" && (
+  <Link to="/favorites" className="hover:text-yellow-300">
+    Favorites
+  </Link>
+)}
               {user.role === "owner" && (
                 <Link to="/owner-bookings" className="hover:text-yellow-300">
                   Bookings
