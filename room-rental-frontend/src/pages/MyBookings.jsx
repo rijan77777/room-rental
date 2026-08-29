@@ -73,8 +73,8 @@ function MyBookings() {
         <div className="flex flex-col gap-4">
           {bookings.map((b) => (
             <div key={b._id} className="border rounded-2xl p-5 bg-white">
-              <h2 className="font-bold text-lg text-gray-900">{b.room.title}</h2>
-              <p className="text-sm text-gray-500">{b.room.location.city}</p>
+              <h2 className="font-bold text-lg text-gray-900">{b.room?.title || "Deleted room"}</h2>
+<p className="text-sm text-gray-500">{b.room?.location?.city || "-"}</p>
               <p className="mt-1 text-gray-700">
                 {new Date(b.moveInDate).toLocaleDateString()} → {new Date(b.moveOutDate).toLocaleDateString()}
               </p>
