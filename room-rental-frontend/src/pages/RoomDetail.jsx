@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import RoomMap from "../components/RoomMap";
+import ChatBox from "../components/ChatBox";
 
 function RoomDetail() {
   const { id } = useParams();
@@ -31,6 +32,7 @@ function RoomDetail() {
 
   const [similarRooms, setSimilarRooms] = useState([]);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -328,6 +330,18 @@ function RoomDetail() {
           >
             {isFavorited ? "❤️ Saved to Favorites" : "🤍 Save to Favorites"}
           </button>
+          {user && user._id !== room.owner._id && (
+  <button
+    onClick={() => setShowChat(!showChat)}
+    className="w-full bg-teal-800 hover:bg-teal-900 text-white font-medium py-2.5 rounded-xl mt-2 text-sm"
+  >
+    💬 {showChat ? "Close Chat" : "Message Owner"}
+  </button>
+)}
+
+{showChat && (
+  <ChatBox roomId={id} otherUserId={room.owner._id} otherUserName={room.owner.name} />
+)}
 
           <div className="mt-6 border-t pt-4">
             <p className="text-sm font-semibold text-gray-900 mb-2">Have a question?</p>
