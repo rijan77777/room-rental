@@ -11,6 +11,7 @@ const { getMine, markRead, markAllRead } = require('./notification');
 const { protect, adminOnly } = require('../middlewares/auth');
 const upload = require('../config/multer');
 const { create: createReport, getAll: getAllReports, updateStatus: updateReportStatus } = require('./report');
+const { send: sendMessage, getThread, listConversations } = require('./message');
 
 router.post('/auth/register', register);
 router.post('/auth/login', login);
@@ -60,5 +61,8 @@ router.get('/admin/reports', protect, adminOnly, getAllReports);
 router.put('/admin/reports/:id', protect, adminOnly, updateReportStatus);
 router.get('/favorites/count', protect, getFavCount);
 router.get('/rooms/:id/favorite-status', protect, checkFavorite);
+router.post('/messages', protect, sendMessage);
+router.get('/messages/:roomId/:otherUserId', protect, getThread);
+router.get('/messages', protect, listConversations);
 
 module.exports = router;
