@@ -330,7 +330,7 @@ function RoomDetail() {
           >
             {isFavorited ? "❤️ Saved to Favorites" : "🤍 Save to Favorites"}
           </button>
-          {user && user._id !== room.owner._id && (
+          {user && user.id !== room.owner._id && (
   <button
     onClick={() => setShowChat(!showChat)}
     className="w-full bg-teal-800 hover:bg-teal-900 text-white font-medium py-2.5 rounded-xl mt-2 text-sm"

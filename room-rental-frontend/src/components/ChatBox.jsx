@@ -54,7 +54,7 @@ function ChatBox({ roomId, otherUserId, otherUserName }) {
             <div
               key={m._id}
               className={`max-w-[75%] px-3 py-2 rounded-xl text-sm ${
-                m.sender === user._id || m.sender?._id === user._id
+                m.sender === user.id || m.sender?._id === user.id
                   ? "bg-teal-800 text-white self-end"
                   : "bg-white border text-gray-800 self-start"
               }`}
