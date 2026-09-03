@@ -77,7 +77,8 @@ function RoomMap({ latitude, longitude, title }) {
         ))}
       </MapContainer>
 
-      
+      {/* ✅ FIXED: Properly closed <a> tag */}
+      <a
         href={directionsUrl}
         target="_blank"
         rel="noopener noreferrer"
